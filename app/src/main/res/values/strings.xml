@@ -1,0 +1,7 @@
+<resources>
+    <string name="app_name">GRP15</string>
+    <string name="is_support">SUPPORT?</string>
+    <string name="is_enable">ENABLE?</string>
+    <string name="turn_on">TURN ON</string>
+    <string name="turn_off">TURN OFF</string>
+</resources>
