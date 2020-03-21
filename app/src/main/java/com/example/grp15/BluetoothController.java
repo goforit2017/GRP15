@@ -5,19 +5,25 @@ import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.content.Context;
 import android.content.Intent;
+import android.util.Log;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 /**
  * Bluetooth controller / adapter
  */
 public class BluetoothController {
 
-    private BluetoothAdapter mAdapter;
+    public BluetoothAdapter mAdapter;   // may change the public back to private
+    public String name; // need to be fixed latter. find a better way
+    public String address;
 
     public BluetoothController(){
         mAdapter = BluetoothAdapter.getDefaultAdapter();    //get the instance of bluetooth adapter
+        name = mAdapter.getName();
+        address = mAdapter.getAddress();
     }
 
     /**
@@ -80,5 +86,17 @@ public class BluetoothController {
      */
     public List<BluetoothDevice> getBondedDeviceList(){
         return new ArrayList<>(mAdapter.getBondedDevices());
+    }
+
+    /**
+     * check some information
+     */
+    public void checkInfo() {
+        Log.d("WTF", "bluetooth name =" + name + " address =" + address);
+        Set<BluetoothDevice> devices = mAdapter.getBondedDevices();
+        Log.d("WTF", "bonded device size =" + devices.size());
+        for (BluetoothDevice bondDevice : devices) {
+            Log.d("WTF", "bonded device name =" + bondDevice.getName() + " address" + bondDevice.getAddress());
+        }
     }
 }
