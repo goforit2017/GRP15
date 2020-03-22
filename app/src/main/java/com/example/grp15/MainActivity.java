@@ -7,6 +7,8 @@ import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothGatt;
 import android.bluetooth.BluetoothGattCallback;
+import android.bluetooth.BluetoothGattCharacteristic;
+import android.bluetooth.BluetoothGattDescriptor;
 import android.bluetooth.BluetoothGattService;
 import android.bluetooth.BluetoothProfile;
 import android.content.BroadcastReceiver;
@@ -19,6 +21,7 @@ import android.view.View;
 import android.widget.Toast;
 
 import java.util.List;
+import java.util.UUID;
 
 
 public class MainActivity extends AppCompatActivity {
@@ -60,27 +63,62 @@ public class MainActivity extends AppCompatActivity {
             }
         }
 
+        @Override
         public void onServicesDiscovered(BluetoothGatt gatt, int status) {
             if (status == BluetoothGatt.GATT_SUCCESS) {
-                   Log.e("SERVER", "GATT_connect_succeed");
-                   List<BluetoothGattService> supportedGattServices = gatt.getServices();
-                   if(supportedGattServices==null){
-                       Log.e("SERVER","No Server Found");
-                   }else{
-                       int i=0;
-                       int p = 0;
-                       for (BluetoothGattService gattService : supportedGattServices) {
-                           if(gattService==null){
-                               p=p+1;
-                           }else{
-                               i=1+i;
-                               Log.d("123","FUCK!");
-                           }
-                       }
-                       Log.e("ricardo","Server Found : i = "+i+" p = "+p); //i = 0; p = 0
-                   }
+                Log.e("SERVER", "GATT_connect_succeed");
+                List<BluetoothGattService> supportedGattServices = gatt.getServices();
+                if(supportedGattServices.isEmpty()){
+                    Log.e("SERVER","No Server Found");
+                }else{
+                    int i=0;
+                    int p = 0;
+                    for (BluetoothGattService gattService : supportedGattServices) {
+                        if(gattService==null){
+                            p=p+1;
+                        }else{
+                            i=1+i;
+                        }
+                    }
+                    Log.e("ricardo","Server Found : i = "+i+" p = "+p); //i = 0; p = 0
+                    BluetoothGattService hrService = gatt.getService(UUIDManager.SERVICE_UUID);
+                    if(hrService != null){
+                        BluetoothGattCharacteristic hrCharacteristic = hrService.getCharacteristic(UUIDManager.READ_UUID);
+                        BluetoothGattCharacteristic notifyCharacteristic = hrService.getCharacteristic(UUIDManager.NOTIFY_UUID);
+                        BluetoothUtils.enableNotification(gatt,true, notifyCharacteristic);
+                        if (hrCharacteristic != null){
+                            Log.d("ricardo","what is the property: "+hrCharacteristic.getProperties());
+                            gatt.readCharacteristic(hrCharacteristic);
+                        }
+                        //BluetoothGattCharacteristic characteristicWrite = hrService.getCharacteristic()
+                    }
+                }
             }
         }
+
+        @Override
+        public void onCharacteristicRead(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic, int status) {
+            super.onCharacteristicRead(gatt, characteristic, status);
+            if(status == BluetoothGatt.GATT_SUCCESS){
+                Log.e("READ","Read characteristic successfully "+BluetoothUtils.bytesToHexString(characteristic.getValue()));
+            }else{
+                Log.e("WTF", "I'm here?");
+            }
+        }
+
+        @Override
+        public void onCharacteristicChanged(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic) {
+            super.onCharacteristicChanged(gatt, characteristic);
+            //如果推送的是十六进制的数据的写法
+            String data = BluetoothUtils.bytesToHexString(characteristic.getValue()); // 将字节转化为String字符串
+            Log.e("Notify","The data is "+data);
+            //Message message = new Message();
+            //message.what = BlueCodeUtils.BLUETOOTH_PUSH_MESSAGE;
+            //message.obj = data;
+            //traverseListener(message);//回调数据
+
+        }
+
     };
     private Toast mToast;
 
