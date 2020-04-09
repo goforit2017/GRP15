@@ -110,8 +110,11 @@ public class MainActivity extends AppCompatActivity {
         public void onCharacteristicChanged(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic) {
             super.onCharacteristicChanged(gatt, characteristic);
             //如果推送的是十六进制的数据的写法
-            String data = BluetoothUtils.bytesToHexString(characteristic.getValue()); // 将字节转化为String字符串
-            Log.e("Notify","The data is "+data);
+            //String data = BluetoothUtils.bytesToHexString(characteristic.getValue()); // 将字节转化为String字符串
+            //Log.e("Notify","The data is "+data);
+            Log.e("Notify","X: "+BluetoothUtils.bytesToFloat(characteristic.getValue(),'x')
+                    +" Y: "+BluetoothUtils.bytesToFloat(characteristic.getValue(),'y')
+                    +" Z: "+BluetoothUtils.bytesToFloat(characteristic.getValue(),'z'));
             //Message message = new Message();
             //message.what = BlueCodeUtils.BLUETOOTH_PUSH_MESSAGE;
             //message.obj = data;

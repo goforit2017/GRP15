@@ -3,6 +3,7 @@ package com.example.grp15;
 import android.bluetooth.BluetoothGatt;
 import android.bluetooth.BluetoothGattCharacteristic;
 import android.bluetooth.BluetoothGattDescriptor;
+import android.util.Log;
 
 import java.util.UUID;
 
@@ -47,8 +48,9 @@ public class BluetoothUtils {
             return null;
         }
         for (int i = 0; i < src.length; i++) {
-            int v = src[i] & 0xFF;
-            String hv = Integer.toHexString(v);
+            int v = src[i] & 0xFF;// &0xFF make the value 0-255 no sign
+            //String hv = Integer.toHexString(v);
+            String hv = Integer.toString(v);
             if (hv.length() < 2) {
                 stringBuilder.append(0);
             }
@@ -56,6 +58,41 @@ public class BluetoothUtils {
         }
         return stringBuilder.toString();
     }
+
+    /**
+     * 将一个4位字节数组转换为浮点数。<br>
+     * 注意，函数中不会对字节数组长度进行判断，请自行保证传入参数的正确性。
+     *
+     * @param b
+     *            字节数组
+     * @return 浮点数
+     */
+    public static float bytesToFloat(byte[] b, char option) {
+        if(option=='x'){
+            return Float.intBitsToFloat(bytesToInt(b,3));
+        }else if (option == 'y'){
+            return Float.intBitsToFloat(bytesToInt(b,7));
+        }else{
+            return Float.intBitsToFloat(bytesToInt(b,11));
+        }
+
+    }
+    /**
+     * 将一个4位字节数组转换为4整数。<br>
+     * 注意，函数中不会对字节数组长度进行判断，请自行保证传入参数的正确性。
+     *
+     * @param b
+     *            字节数组
+     * @return 整数
+     */
+    public static int bytesToInt(byte[] b, int n) {
+        int i = (b[n] << 24) & 0xFF000000;
+        i |= (b[n-1] << 16) & 0xFF0000;
+        i |= (b[n-2] << 8) & 0xFF00;
+        i |= b[n-3] & 0xFF;
+        return i;
+    }
+
     /**
      * 将字符串转化为16进制的字节
      *
