@@ -1,3 +1,4 @@
+/* Created by GRP team 15 XIN LIN(20030603)*/
 package com.example.grp15;
 
 import android.bluetooth.BluetoothGatt;
@@ -9,8 +10,7 @@ import java.util.UUID;
 
 public class BluetoothUtils {
     /**
-     * 是否开启蓝牙的通知
-     *
+     * if the bluetooth notification is enabled
      * @param enable
      * @param characteristic
      * @return
@@ -23,7 +23,7 @@ public class BluetoothUtils {
         if (!bluetoothGatt.setCharacteristicNotification(characteristic, enable)) {
             return false;
         }
-        //获取到Notify当中的Descriptor通道  然后再进行注册
+        //get the Descriptor from Notify then do the register
         BluetoothGattDescriptor clientConfig = characteristic.getDescriptor(UUIDManager.NOTIFY_DESCRIPTOR);
         if (clientConfig == null) {
             return false;
@@ -37,10 +37,9 @@ public class BluetoothUtils {
     }
 
     /**
-     * 将字节 转换为字符串
-     *
-     * @param src 需要转换的字节数组
-     * @return 返回转换完之后的数据
+     * transfer the byte into string
+     * @param src the byte array needed to transfer
+     * @return the string transferred by byte array
      */
     public static String bytesToHexString(byte[] src) {
         StringBuilder stringBuilder = new StringBuilder("");
@@ -60,12 +59,12 @@ public class BluetoothUtils {
     }
 
     /**
-     * 将一个4位字节数组转换为浮点数。<br>
-     * 注意，函数中不会对字节数组长度进行判断，请自行保证传入参数的正确性。
+     * transfer 4 bytes into a flat value
+     * since the method will not estimate the length of byte array
+     * make sure the correctness of parameter!
      *
-     * @param b
-     *            字节数组
-     * @return 浮点数
+     * @param b the byte array
+     * @return the float value after transfer
      */
     public static float bytesToFloat(byte[] b, char option) {
         if(option=='x'){
@@ -78,12 +77,11 @@ public class BluetoothUtils {
 
     }
     /**
-     * 将一个4位字节数组转换为4整数。<br>
-     * 注意，函数中不会对字节数组长度进行判断，请自行保证传入参数的正确性。
-     *
-     * @param b
-     *            字节数组
-     * @return 整数
+     * transfer 4 bytes into 4 integer
+     * since the method will not estimate the length of byte array
+     * make sure the correctness of parameter!
+     * @param b byte array
+     * @return int value after transfer
      */
     public static int bytesToInt(byte[] b, int n) {
         int i = (b[n] << 24) & 0xFF000000;
@@ -94,11 +92,9 @@ public class BluetoothUtils {
     }
 
     /**
-     * 将字符串转化为16进制的字节
-     *
-     * @param message
-     *            需要被转换的字符
-     * @return
+     * transfer the string into byte array for message sending
+     * @param message the string needed to be transfer
+     * @return the byte array after transfer
      */
     public static byte[] getHexBytes(String message) {
         int len = message.length() / 2;

@@ -1,3 +1,4 @@
+/* Created by GRP team 15 XIN LIN(20030603)*/
 package com.example.grp15;
 
 import android.app.Activity;
