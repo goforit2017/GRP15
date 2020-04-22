@@ -16,10 +16,15 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
+import android.os.Environment;
 import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
 
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.List;
 import java.util.UUID;
 
@@ -27,6 +32,10 @@ import java.util.UUID;
 public class MainActivity extends AppCompatActivity {
 
     public static final int REQUEST_CODE = 0;
+    public File csv; //= new File(this.getFilesDir()+File.separator+"grp.csv");
+    public String path = "/data/data/com.example.grp15/files";
+    private int refer = 0;
+    private Position refPosition;
     private BluetoothController mController = new BluetoothController();
     private BluetoothDevice targetDevice;
     private BluetoothGattCallback mCallback = new BluetoothGattCallback() {
@@ -90,6 +99,7 @@ public class MainActivity extends AppCompatActivity {
                             Log.d("ricardo","what is the property: "+hrCharacteristic.getProperties());
                             gatt.readCharacteristic(hrCharacteristic);
                         }
+                        csv= new File(path+File.separator+"grp2.csv");
                         //BluetoothGattCharacteristic characteristicWrite = hrService.getCharacteristic()
                     }
                 }
@@ -112,9 +122,32 @@ public class MainActivity extends AppCompatActivity {
             //如果推送的是十六进制的数据的写法
             //String data = BluetoothUtils.bytesToHexString(characteristic.getValue()); // 将字节转化为String字符串
             //Log.e("Notify","The data is "+data);
-            Log.e("Notify","X: "+BluetoothUtils.bytesToFloat(characteristic.getValue(),'x')
-                    +" Y: "+BluetoothUtils.bytesToFloat(characteristic.getValue(),'y')
-                    +" Z: "+BluetoothUtils.bytesToFloat(characteristic.getValue(),'z'));
+            float x = BluetoothUtils.bytesToFloat(characteristic.getValue(),'x');
+            float y = BluetoothUtils.bytesToFloat(characteristic.getValue(),'y');
+            float z = BluetoothUtils.bytesToFloat(characteristic.getValue(),'z');
+            if(refer == 1){ // start to collect the reference position
+                refPosition = new Position(x,y,z);
+                refer = 2;
+                // TODO 计数测量多次取平均值
+                Log.e("Roll angle","the roll angle of reference position is "+ refPosition.getPhi());
+            }else if(refer == 2){ // the reference position is collected successfully
+                Log.e("Notify","X: "+ x +" Y: "+ y +" Z: "+ z +" The difference is: "+refPosition.compare(z,y));
+            }else{
+                try {
+                    BufferedWriter bw = new BufferedWriter(new FileWriter(csv, true));
+                    bw.newLine();
+                    bw.write(180/Math.PI*Math.atan(x/Math.sqrt(y*y+z*z))+","+180/Math.PI*Math.atan(y/Math.sqrt(x*x+z*z))+","+180/Math.PI*Math.atan(z/Math.sqrt(y*y+x*x)));
+                    bw.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+                Log.e("Notify","X: "+ x +" Y: "+ y +" Z: "+ z);
+                Log.e("NOTIFY"," X degree: "+ 180/Math.PI*Math.atan(x/Math.sqrt(y*y+z*z))
+                        +" Y degree"+180/Math.PI*Math.atan(y/Math.sqrt(x*x+z*z))
+                        +" Z degree"+180/Math.PI*Math.atan(z/Math.sqrt(y*y+x*x))
+                );
+            }
+
             //Message message = new Message();
             //message.what = BlueCodeUtils.BLUETOOTH_PUSH_MESSAGE;
             //message.obj = data;
@@ -185,14 +218,18 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void isSupportBluetooth(View view){
-        boolean ret = mController.isSupportBluetooth();
-        showToast("Support bluetooth? "+ret);
-        mController.checkInfo();
+//        boolean ret = mController.isSupportBluetooth();
+//        showToast("Support bluetooth? "+ret);
+//        mController.checkInfo();
+        refer = 1;
+        showToast("Collect reference position "+refer);
     }
 
     public void isBluetoothEnable(View view){
         boolean ret = mController.getBluetoothStatus();
         showToast("Bluetooth enable? "+ret);
+        path = this.getFilesDir().toString();
+        Log.e("WTF",this.getFilesDir().toString());
     }
 
     public void turnOnBluetooth(View view){
